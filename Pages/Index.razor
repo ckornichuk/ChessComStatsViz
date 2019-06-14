@@ -1,0 +1,112 @@
+﻿@page "/"
+@inject HttpClient Http
+
+<h1>Find chess ratings</h1>
+
+<input placeholder="Player name" @bind="@playerName" />
+<button @onclick="@UpdatePlayerName">Search</button>
+
+@if (notFound)
+{
+    <p>No data found</p>
+}
+
+@if (playerName != null && ratings != null)
+{
+    <p>Displaying data for @playerName</p>
+}
+
+
+@if (ratings != null)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Game</th>
+                <th>Rating</th>
+                <th>Wins</th>
+                <th>Losses</th>
+                <th>Draws</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Blitz</td>
+                <td>@ratings.chess_blitz.last.rating</td>
+                <td>@ratings.chess_blitz.record.win</td>
+                <td>@ratings.chess_blitz.record.loss</td>
+                <td>@ratings.chess_blitz.record.draw</td>
+            </tr>
+        </tbody>
+        <tbody>
+            <tr>
+                <td>Bullet</td>
+                <td>@ratings.chess_bullet.last.rating</td>
+                <td>@ratings.chess_bullet.record.win</td>
+                <td>@ratings.chess_bullet.record.loss</td>
+                <td>@ratings.chess_bullet.record.draw</td>
+            </tr>
+        </tbody>
+    </table>
+}
+
+@code {
+    private RatingsResponse ratings;
+    private string playerName;
+    private bool notFound;
+
+    private async Task UpdatePlayerName()
+    {
+        try
+        {
+            ratings = await Http.GetJsonAsync<RatingsResponse>
+                ($"https://api.chess.com/pub/player/{playerName}/stats");
+            notFound = false;
+        }
+        catch (Exception e)
+        {
+            notFound = true;
+        }
+    }
+
+    public class RatingsResponse
+    {
+        public ChessBullet chess_bullet { get; set; }
+        public ChessBlitz chess_blitz { get; set; }
+    }
+
+    public class ChessBullet
+    {
+        public Last last { get; set; }
+        public Best best { get; set; }
+        public Record record { get; set; }
+    }
+
+    public class Last
+    {
+        public int rating { get; set; }
+        public int date { get; set; }
+        public int rd { get; set; }
+    }
+
+    public class Best
+    {
+        public int rating { get; set; }
+        public int date { get; set; }
+        public string game { get; set; }
+    }
+
+    public class Record
+    {
+        public int win { get; set; }
+        public int loss { get; set; }
+        public int draw { get; set; }
+    }
+
+    public class ChessBlitz
+    {
+        public Last last { get; set; }
+        public Best best { get; set; }
+        public Record record { get; set; }
+    }
+}
