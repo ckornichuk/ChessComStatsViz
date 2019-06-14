@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Blazor.Hosting;
 
-namespace ChessComStatsViz
+namespace ChessStats
 {
     public class Program
     {

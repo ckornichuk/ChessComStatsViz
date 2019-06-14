@@ -1,7 +1,8 @@
+using ChessStats;
 using Microsoft.AspNetCore.Components.Builder;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace ChessComStatsViz
+namespace ChessStats
 {
     public class Startup
     {
