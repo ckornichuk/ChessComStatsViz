@@ -1,4 +1,5 @@
-﻿using ChessStats.Shared;
+﻿using ChessStats.DTOs;
+using ChessStats.Shared;
 using Microsoft.AspNetCore.Components;
 using System;
 using System.Collections.Generic;

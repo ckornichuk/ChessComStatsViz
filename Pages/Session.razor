@@ -1,0 +1,83 @@
+﻿@page "/session"
+@inject Services.RatingsService service;
+
+@using DTOs;
+
+<h1>Track a player's session</h1>
+
+@if (playerName == null || result == null || !result.IsSuccess)
+{
+    <input placeholder="Player name" @bind="@playerName" />
+    <button @onclick="@StartTracking">Search</button>
+}
+else
+{
+    <button @onclick="@StopTracking">Stop</button>
+}
+
+@if (result != null)
+{
+    @if (result.IsSuccess)
+    {
+        <p>Tracking @playerName's bullet session</p>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Game</th>
+                    <th>Current Rating</th>
+                    <th>Rating Gain</th>
+                    <th>New Wins</th>
+                    <th>New Losses</th>
+                    <th>New Draws</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Bullet</td>
+                    <td>@result.Data.chess_bullet.last.rating</td>
+                    <td>@(result.Data.chess_bullet.last.rating - initial.Rating)</td>
+                    <td>@(result.Data.chess_bullet.record.win - initial.Win)</td>
+                    <td>@(result.Data.chess_bullet.record.loss - initial.Loss)</td>
+                    <td>@(result.Data.chess_bullet.record.draw - initial.Draw)</td>
+                </tr>
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>No data found</p>
+    }
+}
+
+@code {
+private RatingsCallResult result;
+private string playerName;
+private InitialRecord initial;
+
+private async Task StartTracking()
+{
+    result = await service.GetRatingsByPlayerName(playerName);
+    Console.WriteLine(playerName == null || result == null || !result.IsSuccess);
+
+    initial = new DTOs.InitialRecord(result.Data.chess_bullet.last.rating,
+    result.Data.chess_bullet.record.win,
+    result.Data.chess_bullet.record.loss,
+    result.Data.chess_bullet.record.draw);
+
+    this.StateHasChanged();
+
+    do
+    {
+        await Task.Delay(10000);
+        result = await service.GetRatingsByPlayerName(playerName);
+        this.StateHasChanged();
+    } while (result != null && playerName != null);
+}
+
+private void StopTracking()
+{
+    result = null;
+    playerName = null;
+}
+}
